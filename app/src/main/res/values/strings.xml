@@ -1,0 +1,7 @@
+<resources>
+  <string name="app_text_category_name_required">categoryName parameter wasn\'t found. Please make sure it\'s set!</string>
+  <string name="app_text_source_id_required">sourceId parameter wasn\'t found. Please make sure it\'s set!</string>
+  <string name="app_text_source_name_required">sourceName parameter wasn\'t found. Please make sure it\'s set!</string>
+  <string name="app_text_title_required">title parameter wasn\'t found. Please make sure it\'s set!</string>
+  <string name="app_text_url_required">url parameter wasn\'t found. Please make sure it\'s set!</string>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="framework_text_error_connection">error in connection</string>
+  <string name="framework_text_error_conversion">error in conversion</string>
+  <string name="framework_text_error_http">http error</string>
+
+  <string-array name="arr_news_categories">
+    <item>Business</item>
+    <item>Entertainment</item>
+    <item>General</item>
+    <item>Health</item>
+    <item>Science</item>
+    <item>Sports</item>
+    <item>Technology</item>
+  </string-array>
+
+  <string name="framework_content_desc_back_button">Back Button</string>
+</resources>
