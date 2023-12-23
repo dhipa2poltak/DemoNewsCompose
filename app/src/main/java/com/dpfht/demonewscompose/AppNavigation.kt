@@ -107,7 +107,7 @@ fun NavGraphBuilder.mainGraph(appWindowTitle: String) {
       val url = Uri.decode(backStackEntry.arguments?.getString("url"))
       requireNotNull(url) { stringResource(id = string.app_text_url_required) }
 
-      ArticleScreen(screenTitle = appWindowTitle, url = url)
+      ArticleScreen(url = url)
     }
   }
 }

@@ -21,81 +21,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.dpfht.demonewscompose.feature_article.event_state.UIEvent
-import com.dpfht.demonewscompose.framework.commons.ui.components.SharedTopAppBar
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ArticleScreen(
-  screenTitle: String,
-  url: String,
-  viewModel: ArticleViewModel = hiltViewModel()
-) {
-  val isLoading = remember { mutableStateOf(true) }
+fun ArticleScreen(url: String) {
+  val isLoaded = remember { mutableStateOf(false) }
+  val isRefreshing = remember { mutableStateOf(false) }
 
-  /*
   val pullRefreshState = rememberPullRefreshState(
-    refreshing = isLoading.value,
+    refreshing = isRefreshing.value || !isLoaded.value,
     onRefresh = {
-      //isLoading.value = true
+      isRefreshing.value = true
     }
   )
-  */
 
   Scaffold(
-    topBar = {
-      SharedTopAppBar(
-        title = screenTitle,
-        onNavigateBack = {
-          viewModel.onEvent(UIEvent.OnBackPressed)
-        }
-      )
-    },
     content = { padding ->
       Box(
         modifier = Modifier
           .padding(padding)
           .fillMaxSize()
+          .pullRefresh(pullRefreshState)
+          .verticalScroll(rememberScrollState())
       ) {
-        ConstraintLayout(
-          modifier = Modifier
-            .fillMaxSize()
-        ) {
+          WebViewPage(url = url, isLoaded, isRefreshing)
 
-          val (articleBox) = createRefs()
-
-          Box(
-            modifier = Modifier
-              .fillMaxSize()
-              .constrainAs(articleBox) {
-                start.linkTo(parent.start)
-                top.linkTo(parent.top)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-              }
-              //.pullRefresh(pullRefreshState)
-              //.verticalScroll(rememberScrollState())
-          ) {
-            WebViewPage(url = url, isLoading)
-
-            /*
-            PullRefreshIndicator(
-              refreshing = isLoading.value,
-              state = pullRefreshState,
-              modifier = Modifier.align(Alignment.TopCenter)
-            )
-            */
-          }
-        }
+          PullRefreshIndicator(
+            refreshing = isRefreshing.value || !isLoaded.value,
+            state = pullRefreshState,
+            modifier = Modifier.align(Alignment.TopCenter)
+          )
       }
     }
   )
 }
 
 @Composable
-fun WebViewPage(url: String, isLoading: MutableState<Boolean>) {
+fun WebViewPage(url: String, isLoaded: MutableState<Boolean>, isRefreshing: MutableState<Boolean>) {
   AndroidView(
     factory = { context ->
       WebView(context).apply {
@@ -104,29 +66,32 @@ fun WebViewPage(url: String, isLoading: MutableState<Boolean>) {
           LayoutParams.MATCH_PARENT
         )
         webViewClient = object : WebViewClient() {
+          @Deprecated("Deprecated in Java", ReplaceWith("false"))
           override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
             return false
           }
 
           override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
-
-            //isLoading.value = true
           }
 
           override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
 
-            isLoading.value = false
+            isLoaded.value = true
+            isRefreshing.value = false
           }
         }
-        loadUrl(url)
       }
     },
     update = {
-      //if (isLoading.value) {
+      if (!isLoaded.value) {
         it.loadUrl(url)
-      //}
+      }
+
+      if (isRefreshing.value) {
+        it.reload()
+      }
     }
   )
 }
