@@ -15,7 +15,6 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,7 +43,21 @@ fun ArticleScreen(url: String) {
           .pullRefresh(pullRefreshState)
           .verticalScroll(rememberScrollState())
       ) {
-          WebViewPage(url = url, isLoaded, isRefreshing)
+          WebViewPage(
+            onPageLoadFinished = {
+              isLoaded.value = true
+              isRefreshing.value = false
+            },
+            onUpdate = {
+              if (!isLoaded.value) {
+                it.loadUrl(url)
+              }
+
+              if (isRefreshing.value) {
+                it.reload()
+              }
+            }
+          )
 
           PullRefreshIndicator(
             refreshing = isRefreshing.value || !isLoaded.value,
@@ -57,7 +70,7 @@ fun ArticleScreen(url: String) {
 }
 
 @Composable
-fun WebViewPage(url: String, isLoaded: MutableState<Boolean>, isRefreshing: MutableState<Boolean>) {
+fun WebViewPage(onPageLoadFinished: () -> Unit, onUpdate: (WebView) -> Unit) {
   AndroidView(
     factory = { context ->
       WebView(context).apply {
@@ -78,20 +91,13 @@ fun WebViewPage(url: String, isLoaded: MutableState<Boolean>, isRefreshing: Muta
           override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
 
-            isLoaded.value = true
-            isRefreshing.value = false
+            onPageLoadFinished()
           }
         }
       }
     },
     update = {
-      if (!isLoaded.value) {
-        it.loadUrl(url)
-      }
-
-      if (isRefreshing.value) {
-        it.reload()
-      }
+      onUpdate(it)
     }
   )
 }
