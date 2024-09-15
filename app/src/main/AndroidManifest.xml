@@ -6,10 +6,10 @@
 
   <application
       android:name=".TheApplication"
-      android:allowBackup="true"
+      android:allowBackup="false"
       android:usesCleartextTraffic="true"
       android:dataExtractionRules="@xml/data_extraction_rules"
-      android:fullBackupContent="@xml/backup_rules"
+      android:fullBackupContent="false"
       android:icon="@drawable/ic_news"
       android:label="${appName}${appNameSuffix}"
       android:roundIcon="@drawable/ic_news"
